@@ -1,0 +1,55 @@
+#include <Stepper.h>
+#define G12 830
+#define G2 784
+#define F2 698
+#define A1 466
+#define C12 554
+#define C 262                                             // 도
+#define D 294                                            // 레
+#define D2 587                                          // 높은 레
+#define D12 622                                        // 높은 레#
+#define E 330                                            // 미
+#define E2 659                                          // 높은 미
+#define F1 370                                          // 파#
+#define A 440                                           // 라
+#define B 494                                           // 시
+#define C2 523                                         // 높은 도
+                                                                   // 음계를 상수로  설정
+unsigned long prevPlayTime = 0;           // 이전 시간
+unsigned long playDuration = 0;             // 실행 길이
+int currentMelody = 0;
+int piezoPin = 7; 
+int melodySize = 50; 
+
+int melody[]={
+C2, C2, D12, 0, 0, C2, C2, D12, 0, 0, C2, D12, G12, 0, G2, 0, F2, F2, 0, D12, 0, A1, C2, C12, 0, 0, 0, A1, C12, G2, F2, D12, 0, G2, 0, G12, 0, 0, 0, 0}; // 음계 설정
+
+int tempo[]={
+10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+};           
+
+void setup(){
+  pinMode(piezoPin, OUTPUT);
+}
+
+void loop() {
+        Signal();                                                            // 부저도 같이 실행
+}
+
+void Signal() {
+     if(millis() < prevPlayTime + playDuration) {         // 부저와 모터 같이 실행하기 위해서 타이머 씀
+           return;                                                 // 이미 음 재생 중이면 음 재생이 끝날 때까지 다른  음 재생 X
+     }
+     noTone(8);                                                  // 다음 음을 재생하기 위해 기존 음 재생 멈춤
+
+     if(currentMelody >= melodySize)         //멜로디를 끝까지 연주했으면 다시 재생하도록 인덱스  초기화
+          currentMelody = 0;
+
+     int noteDuration = 1000/tempo[currentMelody];              // 음의  재생시간(음의 길이 또는 박자) 계산
+
+     tone(piezoPin, melody[currentMelody], noteDuration);        // 음 재생
+     prevPlayTime = millis();                                                          //현재 시간 넣어줌, 다음엔 이전 시간이 됨
+     playDuration = noteDuration * 1.30;                                  //음 재생이 끝날 때까지 기다려야 하는 시간
+     
+     currentMelody++;                                                               //인덱스  증가시켜  다음  음  재생 준비
+}
